@@ -4,15 +4,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bright_f3f3f3"
     tools:context=".MainActivity">
 
-    <TextView
+    <Button
+        android:id="@+id/btnRegister3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginTop="240dp"
+        android:width="200dp"
+        android:backgroundTint="@color/bright_f3f3f3"
+        android:fontFamily="@font/poppins"
+        android:onClick="login"
+        android:text="LOG IN"
+        android:textColor="@color/dark_2e2e2e"
+        android:textSize="20dp"
+        app:cornerRadius="200dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:strokeColor="@color/dark_2e2e2e"
+        app:strokeWidth="1dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:fontFamily="@font/poppins"
+        android:text="MONITOR \n DEVICES"
+        android:textColor="@color/dark_2e2e2e"
+        android:textSize="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:width="200dp"
+        android:backgroundTint="@color/dark_2e2e2e"
+        android:fontFamily="@font/poppins"
+        android:onClick="register"
+        android:text="REGISTER"
+        android:textColor="@color/bright_f3f3f3"
+        android:textSize="20dp"
+        app:cornerRadius="200dp"
+        app:layout_constraintEnd_toEndOf="@+id/btnRegister3"
+        app:layout_constraintStart_toStartOf="@+id/btnRegister3"
+        app:layout_constraintTop_toBottomOf="@+id/btnRegister3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
