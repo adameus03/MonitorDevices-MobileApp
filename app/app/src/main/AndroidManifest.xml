@@ -25,6 +25,7 @@
                 android:value="" />
         </activity>
         <activity android:name=".LoginFormManager"></activity>
+        <activity android:name=".RegistrationFormManager"></activity>
     </application>
 
 </manifest>
