@@ -44,7 +44,7 @@
         android:id="@+id/etLoginFormEmail"
         android:layout_width="280dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="160dp"
+        android:layout_marginTop="128dp"
         android:background="@drawable/input_background"
         android:ems="10"
         android:fontFamily="@font/poppins"
@@ -57,10 +57,10 @@
         android:textColorHint="#2e2e2e"
         android:textColorLink="#2e2e2e"
         android:textSize="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnLoginUser"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView28" />
 
     <EditText
         android:id="@+id/etLoginFormPassword"
@@ -79,8 +79,8 @@
         android:textColorHint="#2e2e2e"
         android:textColorLink="#2e2e2e"
         android:textSize="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/etLoginFormEmail"
+        app:layout_constraintStart_toStartOf="@+id/etLoginFormEmail"
         app:layout_constraintTop_toBottomOf="@+id/etLoginFormEmail" />
 
     <TextView
