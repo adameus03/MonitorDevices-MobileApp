@@ -86,7 +86,7 @@
         android:width="200dp"
         android:backgroundTint="@color/bright_f3f3f3"
         android:fontFamily="@font/poppins"
-        android:onClick="login"
+        android:onClick="register"
         android:text="REGISTER"
         android:textColor="@color/dark_2e2e2e"
         android:textSize="20dp"
