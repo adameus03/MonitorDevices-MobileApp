@@ -2,6 +2,7 @@ package com.example.myapplication.monitordevices;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -48,6 +49,9 @@ public class RegistrationFormManager extends AppCompatActivity {
             System.out.println("Registration success");
         }
         else {
+            Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+            vibrator.vibrate(100);
+
             System.out.println("Registration failed");
         }
 
