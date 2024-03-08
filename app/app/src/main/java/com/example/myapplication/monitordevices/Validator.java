@@ -16,7 +16,7 @@ public class Validator {
     }
 
     public boolean isValidRepeatedPassword(String password, String repeated) {
-        return repeated == password;
+        return repeated.equals(password);
     }
 
     public boolean isValidName(String name) {
