@@ -1,14 +1,34 @@
 package com.example.myapplication.monitordevices;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginFormManager extends AppCompatActivity {
 
+    private EditText etEmail;
+    private EditText etPassword;
+
+    private TextView tvErrorMessage;
+
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_login_form);
+
+        etEmail = findViewById(R.id.etLoginFormEmail);
+        etPassword = findViewById(R.id.etLoginFormPassword);
+        tvErrorMessage = findViewById(R.id.tvWrongLoginData);
+
+    }
+
+    public void login(View view) {
+        String email = etEmail.getText().toString();
+        String password = etPassword.getText().toString();
+
+        System.out.println("email: " + email + ", password: " + password);
     }
 }
