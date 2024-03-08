@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public class Validator {
     private static String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
     private static String PASSWORD_REGEX = "^.{8,}$";
-    private static String NAME_REGEX = "^[a-zA-Z0-9]{1,32}$";
+    private static String NAME_REGEX = "^[a-zA-Z]{1,32}$";
 
     public boolean isValidEmail(String email) {
         return Pattern.matches(EMAIL_REGEX, email);
