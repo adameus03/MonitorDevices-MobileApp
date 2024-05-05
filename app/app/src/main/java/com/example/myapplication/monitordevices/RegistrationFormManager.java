@@ -46,13 +46,18 @@ public class RegistrationFormManager extends AppCompatActivity {
         String repeatedPassword = etRepeatedPassword.getText().toString();
 
         if (validateRegistrationData(email, name, password, repeatedPassword)) {
-            System.out.println("Registration success");
+            ServerManager serverManager = new ServerManager();
+            serverManager.registerUser(name, password, email, new ServerCallback() {
+                @Override
+                public void onServerResponse(String result) {
+                    System.out.println("THIS IS FORM MANAGER: " + result);
+                }
+            });
         }
         else {
             Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
             vibrator.vibrate(100);
 
-            System.out.println("Registration failed");
         }
 
 

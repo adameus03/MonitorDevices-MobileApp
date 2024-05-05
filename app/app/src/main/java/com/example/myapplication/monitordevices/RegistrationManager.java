@@ -17,11 +17,15 @@ public class RegistrationManager {
     private String password;
     private String email;
 
-    public RegistrationManager(String URL, String username, String password, String email) {
+    private RegistrationCallback registrationCallback;
+
+    public RegistrationManager(String URL, String username, String password, String email,
+                               RegistrationCallback registrationCallback) {
         this.URL = URL;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.registrationCallback = registrationCallback;
     }
 
     public void registerUser() {
@@ -36,6 +40,7 @@ public class RegistrationManager {
             String json = "{\"username\": \"" + username +"\", " +
                     "\"password\": \"" + password +"\", " +
                     "\"email\": \"" + email + "\"}";
+            System.out.println(json);
 
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
             Request request = new Request.Builder()
@@ -60,8 +65,10 @@ public class RegistrationManager {
         protected void onPostExecute(String result) {
             if (result != null) {
                 Log.d("AddUserTask", "Result : " + result);
+                registrationCallback.onRegistrationSuccess();
             } else {
                 Log.e("AddUserTask", "Error during request!");
+                registrationCallback.onRegistrationFailure("Error");
             }
         }
     }
