@@ -3,6 +3,9 @@ package com.example.myapplication.monitordevices;
 import android.os.AsyncTask;
 import android.util.Log;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,6 +19,8 @@ public class RegistrationManager {
     private String username;
     private String password;
     private String email;
+
+    private String errorMessage = null;
 
     private RegistrationCallback registrationCallback;
 
@@ -51,7 +56,16 @@ public class RegistrationManager {
             try {
                 Response response = client.newCall(request).execute();
                 if (!response.isSuccessful()) {
-                    System.out.println(response);
+                    String responseStr = response.body().string();
+                    Pattern pattern = Pattern.compile("BadRequestError: (.*?)<br>");
+                    Matcher matcher = pattern.matcher(responseStr);
+
+                    if (matcher.find()) {
+                        System.out.println("Error: " + matcher.group(1));
+                        errorMessage = matcher.group(1);
+                    } else {
+                        System.out.println("No error for pattern!!!");
+                    }
                     throw new IOException("Unexpected code " + response);
                 }
                 return response.body().string();
@@ -67,8 +81,8 @@ public class RegistrationManager {
                 Log.d("AddUserTask", "Result : " + result);
                 registrationCallback.onRegistrationSuccess();
             } else {
-                Log.e("AddUserTask", "Error during request!");
-                registrationCallback.onRegistrationFailure("Error");
+                Log.e("AddUserTask", "Error during request!:"  + errorMessage);
+                registrationCallback.onRegistrationFailure(errorMessage);
             }
         }
     }

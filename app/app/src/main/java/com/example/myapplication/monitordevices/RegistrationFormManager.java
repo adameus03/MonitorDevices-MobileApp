@@ -50,7 +50,13 @@ public class RegistrationFormManager extends AppCompatActivity {
             serverManager.registerUser(name, password, email, new ServerCallback() {
                 @Override
                 public void onServerResponse(String result) {
-                    System.out.println("THIS IS FORM MANAGER: " + result);
+                    System.out.println("FORM MANAGER ERROR: " + result);
+                    if (result == "EMAIL ALREADY TAKEN") {
+                        // ...
+                    }
+                    if (result == "USERNAME ALREADY EXISTS") {
+                        //...
+                    }
                 }
             });
         }
