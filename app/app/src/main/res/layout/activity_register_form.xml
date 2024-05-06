@@ -57,6 +57,23 @@
         app:layout_constraintStart_toStartOf="@+id/etRegisterFormEmail"
         app:layout_constraintTop_toBottomOf="@+id/etRegisterFormEmail" />
 
+    <TextView
+        android:id="@+id/tvRegisterEmailTaken"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/poppins"
+        android:shadowColor="#CF1717"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:text="Email taken."
+        android:textColor="#CF1717"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@+id/etRegisterFormEmail"
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterFormEmail" />
+
     <EditText
         android:id="@+id/etRegisterFormRepeatPassword"
         android:layout_width="280dp"
@@ -188,6 +205,22 @@
         android:shadowRadius="1"
         android:text="Name should have up to 32 letters"
         android:textColor="#CF1717"
+        android:textSize="14dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@+id/etRegisterFormName"
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterFormName" />
+
+    <TextView
+        android:id="@+id/tvRegisterNameTaken"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/poppins"
+        android:shadowColor="#CF1717"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:text="Name taken."
         android:textSize="14dp"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="@+id/etRegisterFormName"
