@@ -1,11 +1,13 @@
 package com.example.myapplication.monitordevices;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +25,9 @@ public class RegistrationFormManager extends AppCompatActivity {
     private TextView tvWrongPassword;
     private TextView tvWrongRepeatedPassword;
 
+    private TextView tvEmailTaken;
+    private TextView tvNameTaken;
+
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
@@ -37,6 +42,9 @@ public class RegistrationFormManager extends AppCompatActivity {
         tvWrongName = findViewById(R.id.tvRegisterWrongName);
         tvWrongPassword = findViewById(R.id.tvRegisterWrongPassword);
         tvWrongRepeatedPassword = findViewById(R.id.tvRegisterWrongRepeatPassword);
+
+        tvEmailTaken = findViewById(R.id.tvRegisterEmailTaken);
+        tvNameTaken = findViewById(R.id.tvRegisterNameTaken);
     }
 
     public void register(View view) {
@@ -51,22 +59,36 @@ public class RegistrationFormManager extends AppCompatActivity {
                 @Override
                 public void onServerResponse(String result) {
                     System.out.println("FORM MANAGER ERROR: " + result);
-                    if (result == "EMAIL ALREADY TAKEN") {
-                        // ...
+                    if (result.equals("EMAIL ALREADY TAKEN")) {
+                        vibrate();
+                        hideErrorMessage(tvWrongEmail);
+                        hideErrorMessage(tvNameTaken);
+                        showErrorMessage(tvEmailTaken);
                     }
-                    if (result == "USERNAME ALREADY EXISTS") {
-                        //...
+                    if (result.equals("USERNAME ALREADY EXISTS")) {
+                        vibrate();
+                        hideErrorMessage(tvWrongName);
+                        hideErrorMessage(tvEmailTaken);
+                        showErrorMessage(tvNameTaken);
+                    }
+                    if (result.equals("SUCCESS")) {
+                        Toast.makeText(getBaseContext(), "Account created. Now, you can log in", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                        startActivity(intent);
                     }
                 }
             });
         }
         else {
-            Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
-            vibrator.vibrate(100);
-
+            vibrate();
         }
 
 
+    }
+
+    public void vibrate() {
+        Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+        vibrator.vibrate(100);
     }
 
     public boolean validateRegistrationData(String email,
@@ -79,6 +101,7 @@ public class RegistrationFormManager extends AppCompatActivity {
         if (validator.isValidEmail(email)){
             hideErrorMessage(tvWrongEmail);
         } else {
+            hideErrorMessage(tvEmailTaken);
             showErrorMessage(tvWrongEmail);
             isGood = false;
         }
@@ -86,6 +109,7 @@ public class RegistrationFormManager extends AppCompatActivity {
         if (validator.isValidName(name)) {
             hideErrorMessage(tvWrongName);
         } else {
+            hideErrorMessage(tvNameTaken);
             showErrorMessage(tvWrongName);
             isGood = false;
         }

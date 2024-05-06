@@ -13,7 +13,7 @@ public class ServerManager {
                     @Override
                     public void onRegistrationSuccess() {
                         System.out.println("Registration success!!");
-                        serverCallback.onServerResponse("success");
+                        serverCallback.onServerResponse("SUCCESS");
                     }
 
                     @Override
