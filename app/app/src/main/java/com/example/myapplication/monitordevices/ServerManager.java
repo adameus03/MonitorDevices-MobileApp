@@ -28,7 +28,7 @@ public class ServerManager {
 
     public void loginUser(String email, String password, ServerCallback serverCallback) {
         LoginManager loginManager = new LoginManager(
-                REGISTER_URL,
+                LOGIN_URL,
                 email,
                 password,
                 new LoginCallback() {
