@@ -30,5 +30,13 @@ public class LoginFormManager extends AppCompatActivity {
         String password = etPassword.getText().toString();
 
         System.out.println("email: " + email + ", password: " + password);
+
+        ServerManager serverManager = new ServerManager();
+        serverManager.loginUser(email, password, new ServerCallback() {
+            @Override
+            public void onServerResponse(String result) {
+                System.out.println("result: " + result);
+            }
+        });
     }
 }
