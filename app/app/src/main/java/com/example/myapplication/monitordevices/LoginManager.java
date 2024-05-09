@@ -41,7 +41,7 @@ public class LoginManager {
         protected String doInBackground(Void... voids) {
             OkHttpClient client = new OkHttpClient();
             String json = "{\"username\": \"" + email +"\", " +
-                    "\"password\": \"" + password +"\", ";
+                    "\"password\": \"" + password +"\"}";
 
             System.out.println(json);
 
