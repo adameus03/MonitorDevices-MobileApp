@@ -54,7 +54,6 @@ public class LoginManager {
             try {
                 Response response = client.newCall(request).execute();
                 if (!response.isSuccessful()) {
-                    System.out.println(response.headers("Authorization"));
                     String responseStr = response.body().string();
                     Pattern pattern = Pattern.compile("BadRequestError: (.*?)<br>");
                     Matcher matcher = pattern.matcher(responseStr);
@@ -67,6 +66,7 @@ public class LoginManager {
                     }
                     throw new IOException("Unexpected code " + response);
                 }
+                System.out.println("headerss:" + response.headers().get("Authorization"));
                 return response.body().string();
             } catch (IOException e) {
                 e.printStackTrace();
