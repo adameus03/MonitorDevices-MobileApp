@@ -67,7 +67,7 @@ public class LoginManager {
                     throw new IOException("Unexpected code " + response);
                 }
                 System.out.println("headerss:" + response.headers().get("Authorization"));
-                return response.body().string();
+                return response.headers().get("Authorization");
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

@@ -1,6 +1,7 @@
 package com.example.myapplication.monitordevices;
 
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,7 +37,27 @@ public class LoginFormManager extends AppCompatActivity {
             @Override
             public void onServerResponse(String result) {
                 System.out.println("result: " + result);
+                if (result.equals("INVALID USERNAME OR PASSWORD")) {
+                    showErrorMessage(tvErrorMessage);
+                    vibrate();
+                }
+                else {
+                    // assume that JWT was returned...
+                }
             }
         });
+    }
+
+    public void vibrate() {
+        Vibrator vibrator = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+        vibrator.vibrate(100);
+    }
+
+    public void showErrorMessage(TextView textView) {
+        textView.setVisibility(View.VISIBLE);
+    }
+
+    public void hideErrorMessage(TextView textView) {
+        textView.setVisibility(View.INVISIBLE);
     }
 }
