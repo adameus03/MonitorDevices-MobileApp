@@ -42,7 +42,8 @@ public class LoginFormManager extends AppCompatActivity {
                     vibrate();
                 }
                 else {
-                    // assume that JWT was returned...
+                    SessionManager sessionManager = new SessionManager(getBaseContext());
+                    sessionManager.saveToken(result);
                 }
             }
         });
