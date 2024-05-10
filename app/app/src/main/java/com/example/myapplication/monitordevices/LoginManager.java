@@ -78,7 +78,7 @@ public class LoginManager {
         protected void onPostExecute(String result) {
             if (result != null) {
                 Log.d("AddUserTask", "Result : " + result);
-                loginCallback.onLoginSuccess();
+                loginCallback.onLoginSuccess(result);
             } else {
                 Log.e("AddUserTask", "Error during request!:"  + errorMessage);
                 loginCallback.onLoginFailure(errorMessage);

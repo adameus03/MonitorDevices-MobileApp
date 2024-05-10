@@ -33,9 +33,9 @@ public class ServerManager {
                 password,
                 new LoginCallback() {
                     @Override
-                    public void onLoginSuccess() {
+                    public void onLoginSuccess(String token) {
                         System.out.println("Login success!!");
-                        serverCallback.onServerResponse("SUCCESS");
+                        serverCallback.onServerResponse(token);
                     }
 
                     @Override
