@@ -1,5 +1,6 @@
 package com.example.myapplication.monitordevices;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
@@ -44,6 +45,9 @@ public class LoginFormManager extends AppCompatActivity {
                 else {
                     SessionManager sessionManager = new SessionManager(getBaseContext());
                     sessionManager.saveToken(result);
+                    Intent intent = new Intent(getBaseContext(), MainPageManager.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
