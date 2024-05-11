@@ -7,6 +7,8 @@ public class SessionManager {
     private static final String PREF_NAME = "token";
     private static final String KEY_TOKEN = "JWT";
 
+    private static final String KEY_EMAIL = "email";
+
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
 
@@ -19,6 +21,13 @@ public class SessionManager {
         editor.putString(KEY_TOKEN, token);
         editor.commit();
     }
+
+    public void saveEmail(String email) {
+        editor.putString(KEY_EMAIL, email);
+        editor.commit();
+    }
+
+    public String getEmail(){return sharedPreferences.getString(KEY_EMAIL, null);}
 
     public String getToken() {
         return sharedPreferences.getString(KEY_TOKEN, null);
