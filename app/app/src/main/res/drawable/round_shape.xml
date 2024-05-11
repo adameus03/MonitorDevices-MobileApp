@@ -3,6 +3,6 @@
     android:shape="oval">
     <solid android:color="#FFFFFF"/> <!-- Możesz zmienić kolor tła -->
     <size
-        android:width="100dp"
-        android:height="100dp"/>
+        android:width="64dp"
+        android:height="64dp"/>
 </shape>
