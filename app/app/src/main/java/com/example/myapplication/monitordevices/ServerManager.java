@@ -3,6 +3,7 @@ package com.example.myapplication.monitordevices;
 public class ServerManager {
     private String REGISTER_URL = "http://192.168.100.4:8090/register/user";
     private String LOGIN_URL = "http://192.168.100.4:8090/login";
+    private String TOKEN_LOGIN_URL = "http://192.168.100.4:8090/check-token";
 
     public void registerUser(String username, String password, String email, ServerCallback serverCallback) {
         RegistrationManager registrationManager = new RegistrationManager(
@@ -45,6 +46,27 @@ public class ServerManager {
                     }
                 });
         loginManager.loginUser();
+    }
+
+    public void tokenLogin(String email, String token, ServerCallback serverCallback){
+        TokenLoginManager tokenLoginManager = new TokenLoginManager(
+                TOKEN_LOGIN_URL,
+                email,
+                token,
+                new LoginCallback() {
+                    @Override
+                    public void onLoginSuccess(String token) {
+
+                        System.out.println("success!");
+                        serverCallback.onServerResponse("OK");
+                    }
+
+                    @Override
+                    public void onLoginFailure(String error) {
+                        System.out.println("Failure!");
+                    }
+                });
+        tokenLoginManager.loginUser();
     }
 
 

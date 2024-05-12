@@ -41,7 +41,7 @@ public class TokenLoginManager {
         protected String doInBackground(Void... voids) {
             OkHttpClient client = new OkHttpClient();
             String json = "{\"email\": \"" + email +"\", " +
-                    "\"token\": \"" + token +"\"}";
+                    "\"token\": \"" + token + "\"}";
 
             System.out.println(json);
 
@@ -66,8 +66,7 @@ public class TokenLoginManager {
                     }
                     throw new IOException("Unexpected code " + response);
                 }
-                System.out.println("headerss:" + response.headers().get("Authorization"));
-                return response.headers().get("Authorization");
+                return response.body().toString();
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

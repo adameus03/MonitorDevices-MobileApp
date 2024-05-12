@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        tryLogin();
     }
 
     public void openLoginForm(View view) {
@@ -24,6 +25,23 @@ public class MainActivity extends AppCompatActivity {
     public void openRegistrationForm(View view) {
         Intent intent = new Intent(this, RegistrationFormManager.class);
         startActivity(intent);
+    }
+
+    public void tryLogin() {
+        SessionManager sessionManager = new SessionManager(this);
+        String email = sessionManager.getEmail();
+        String token = sessionManager.getToken();
+        ServerManager serverManager = new ServerManager();
+        serverManager.tokenLogin(email, token, new ServerCallback() {
+            @Override
+            public void onServerResponse(String result) {
+                if (result.equals("OK")) {
+                    Intent intent = new Intent(getBaseContext(), MainPageManager.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
 }
