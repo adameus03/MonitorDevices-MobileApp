@@ -1,5 +1,6 @@
 package com.example.myapplication.monitordevices;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +22,7 @@ public class MainPageManager extends AppCompatActivity {
         TextView welcomeText = findViewById(R.id.tvUserName);
         welcomeText.setText("Hello, " + username);
 
-        List<String> deviceList = new ArrayList<>();
+        List<Device> deviceList = new ArrayList<>();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -35,8 +36,11 @@ public class MainPageManager extends AppCompatActivity {
             public void getDevices(ArrayList<Device> devices) {
                 DevicesListAdapter adapter = new DevicesListAdapter(deviceList, new DevicesListAdapter.OnItemClickListener() {
                     @Override
-                    public void onItemClick(String deviceName) {
-                        Toast.makeText(MainPageManager.this, "Clicked: " + deviceName, Toast.LENGTH_SHORT).show();
+                    public void onItemClick(Device device) {
+                        Toast.makeText(MainPageManager.this, "Clicked: " + device.getNumber(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getBaseContext(), StreamPageManager.class);
+                        intent.putExtra("device", device);
+                        startActivity(intent);
                     }
                 });
 
@@ -46,7 +50,8 @@ public class MainPageManager extends AppCompatActivity {
                 int camNumber = 1;
                 for (Device device : devices) {
                     System.out.println("ADDING DEVICE...");
-                    adapter.addDevice("Camera " + camNumber);
+                    device.setNumber(camNumber);
+                    adapter.addDevice(device);
                     camNumber++;
                 }
             }

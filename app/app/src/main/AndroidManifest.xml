@@ -51,6 +51,7 @@
         <activity android:name=".LoginFormManager"></activity>
         <activity android:name=".RegistrationFormManager"></activity>
         <activity android:name=".MainPageManager"></activity>
+        <activity android:name=".StreamPageManager"></activity>
     </application>
 
 </manifest>

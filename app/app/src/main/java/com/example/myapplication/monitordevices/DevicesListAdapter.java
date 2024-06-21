@@ -12,11 +12,11 @@ import java.util.List;
 
 public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.DeviceViewHolder> {
 
-    private List<String> deviceList;
+    private List<Device> devices;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(String deviceName);
+        void onItemClick(Device device);
     }
 
     public static class DeviceViewHolder extends RecyclerView.ViewHolder {
@@ -31,15 +31,15 @@ public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onItemClick((String) v.getTag());
+                        listener.onItemClick((Device) v.getTag());
                     }
                 }
             });
         }
     }
 
-    public DevicesListAdapter(List<String> deviceList, OnItemClickListener listener) {
-        this.deviceList = deviceList;
+    public DevicesListAdapter(List<Device> devices, OnItemClickListener listener) {
+        this.devices = devices;
         this.listener = listener;
     }
 
@@ -53,18 +53,18 @@ public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
-        String currentDevice = deviceList.get(position);
-        holder.textView.setText(currentDevice);
+        Device currentDevice = devices.get(position);
+        holder.textView.setText("Camera " + currentDevice.getNumber());
         holder.itemView.setTag(currentDevice);
     }
 
     @Override
     public int getItemCount() {
-        return deviceList.size();
+        return devices.size();
     }
 
-    public void addDevice(String deviceName) {
-        deviceList.add(deviceName);
-        notifyItemInserted(deviceList.size() - 1);
+    public void addDevice(Device device) {
+        devices.add(device);
+        notifyItemInserted(devices.size() - 1);
     }
 }
