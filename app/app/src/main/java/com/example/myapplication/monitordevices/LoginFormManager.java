@@ -38,7 +38,7 @@ public class LoginFormManager extends AppCompatActivity {
             @Override
             public void onServerResponse(String result) {
                 System.out.println("result: " + result);
-                if (result.equals("INVALID USERNAME OR PASSWORD")) {
+                if (result.equals("INVALID EMAIL OR PASSWORD")) {
                     showErrorMessage(tvErrorMessage);
                     vibrate();
                 }
