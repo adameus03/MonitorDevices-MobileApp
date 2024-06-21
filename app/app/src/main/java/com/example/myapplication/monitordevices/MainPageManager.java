@@ -3,7 +3,6 @@ package com.example.myapplication.monitordevices;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,7 +36,6 @@ public class MainPageManager extends AppCompatActivity {
                 DevicesListAdapter adapter = new DevicesListAdapter(deviceList, new DevicesListAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(Device device) {
-                        Toast.makeText(MainPageManager.this, "Clicked: " + device.getNumber(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getBaseContext(), StreamPageManager.class);
                         intent.putExtra("device", device);
                         startActivity(intent);
