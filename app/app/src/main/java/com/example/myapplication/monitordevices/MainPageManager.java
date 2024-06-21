@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class MainPageManager extends AppCompatActivity {
 
     @Override
@@ -18,5 +20,11 @@ public class MainPageManager extends AppCompatActivity {
         String username = new SessionManager(getBaseContext()).getName();
         TextView welcomeText = (TextView) findViewById(R.id.tvUserName);
         welcomeText.setText("Hello, " + username);
+        new ServerManager().getUserDevices(username, new GetDevicesCallback() {
+            @Override
+            public void getDevices(ArrayList<Device> devices) {
+                System.out.println("NUMBER OF DEVICES: " + devices.size());;
+            }
+        });
     }
 }
