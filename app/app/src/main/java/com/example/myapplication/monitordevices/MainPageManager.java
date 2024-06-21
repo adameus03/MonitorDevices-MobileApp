@@ -15,5 +15,8 @@ public class MainPageManager extends AppCompatActivity {
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_main_page);
+        String username = new SessionManager(getBaseContext()).getName();
+        TextView welcomeText = (TextView) findViewById(R.id.tvUserName);
+        welcomeText.setText("Hello, " + username);
     }
 }

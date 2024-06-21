@@ -72,6 +72,8 @@ public class RegistrationFormManager extends AppCompatActivity {
                         showErrorMessage(tvNameTaken);
                     }
                     if (result.equals("SUCCESS")) {
+                        SessionManager sessionManager = new SessionManager(getBaseContext());
+                        sessionManager.saveEmail(name);
                         Toast.makeText(getBaseContext(), "Account created. Now, you can log in", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getBaseContext(), MainActivity.class);
                         startActivity(intent);

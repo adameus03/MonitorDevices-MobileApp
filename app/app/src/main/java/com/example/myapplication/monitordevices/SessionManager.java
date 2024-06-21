@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 public class SessionManager {
     private static final String PREF_NAME = "token";
     private static final String KEY_TOKEN = "JWT";
+    private static final String KEY_NAME = "name";
 
     private static final String KEY_EMAIL = "email";
 
@@ -26,6 +27,13 @@ public class SessionManager {
         editor.putString(KEY_EMAIL, email);
         editor.commit();
     }
+
+    public void saveName(String name) {
+        editor.putString(KEY_NAME, name);
+        editor.commit();
+    }
+
+    public String getName(){return sharedPreferences.getString(KEY_NAME, null);}
 
     public String getEmail(){return sharedPreferences.getString(KEY_EMAIL, null);}
 
