@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+
 public class LoginFormManager extends AppCompatActivity {
 
     private EditText etEmail;
@@ -43,9 +45,15 @@ public class LoginFormManager extends AppCompatActivity {
                     vibrate();
                 }
                 else {
+                    Gson gson = new Gson();
+                    LoginManager.LoginResponseFlattened flatResponse = gson
+                            .fromJson(result, LoginManager.LoginResponseFlattened.class);
+
                     SessionManager sessionManager = new SessionManager(getBaseContext());
-                    sessionManager.saveToken(result);
-                    sessionManager.saveEmail("bartek@example.com");
+                    sessionManager.saveToken(flatResponse.token);
+                    //sessionManager.saveEmail("bartek@example.com");
+                    sessionManager.saveEmail(email);
+                    sessionManager.saveName(flatResponse.username);
                     Intent intent = new Intent(getBaseContext(), MainPageManager.class);
                     startActivity(intent);
                     finish();

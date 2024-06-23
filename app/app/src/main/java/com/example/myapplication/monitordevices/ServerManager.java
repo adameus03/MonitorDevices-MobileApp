@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 public class ServerManager {
-    private String REGISTER_URL = "http://192.168.100.4:8090/register/user";
-    private String LOGIN_URL = "http://192.168.100.4:8090/login";
-    private String TOKEN_LOGIN_URL = "http://192.168.100.4:8090/check-token";
+    public static final String SERVER_SOCKET_STRING = "192.168.1.15:8090";
+    private static final String BASE_URL = "http://" + SERVER_SOCKET_STRING;
+    private String REGISTER_URL = BASE_URL + "/register/user";
+    private String LOGIN_URL = BASE_URL + "/login";
+    private String TOKEN_LOGIN_URL = BASE_URL + "/check-token";
 
     public void getUserDevices(String username, GetDevicesCallback getDevicesCallback){
-        String URL = "http://192.168.100.4:8090/users/" + username + "/devices";
+        String URL = BASE_URL + "/users/" + username + "/devices";
         GetDevicesManager getDevicesManager = new GetDevicesManager(URL, new ServerCallback() {
             @Override
             public void onServerResponse(String result) {

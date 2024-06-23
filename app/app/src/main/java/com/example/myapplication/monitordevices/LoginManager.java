@@ -2,6 +2,9 @@ package com.example.myapplication.monitordevices;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +38,22 @@ public class LoginManager {
         new LoginUserTask().execute();
     }
 
+    private class LoginResponseBody {
+        public String username;
+    }
+    public class LoginResponseFlattened {
+        public String username;
+        public String token;
+
+        public LoginResponseFlattened(String username, String token) {
+            this.username = username;
+            this.token = token;
+        }
+    }
+
     private class LoginUserTask extends AsyncTask<Void, Void, String> {
+
+
 
         @Override
         protected String doInBackground(Void... voids) {
@@ -66,8 +84,24 @@ public class LoginManager {
                     }
                     throw new IOException("Unexpected code " + response);
                 }
-                System.out.println("headerss:" + response.headers().get("Authorization"));
-                return response.headers().get("Authorization");
+                System.out.println("headers:" + response.headers().get("Authorization"));
+
+                String responseString = response.body().string();
+                System.out.println("responseString: " + responseString);
+
+                if (responseString.equals("INVALID EMAIL OR PASSWORD")) {
+                    return "INVALID EMAIL OR PASSWORD";
+                }
+
+                Gson gson = new Gson();
+                LoginResponseBody loginResponseBody = gson.fromJson(responseString,
+                                                                    LoginResponseBody.class);
+                LoginResponseFlattened loginResponseFlattened = new LoginResponseFlattened(
+                        loginResponseBody.username,
+                        response.headers().get("Authorization")
+                );
+
+                return gson.toJson(loginResponseFlattened);
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

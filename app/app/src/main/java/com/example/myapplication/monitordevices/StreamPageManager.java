@@ -24,8 +24,12 @@ public class StreamPageManager extends AppCompatActivity {
         if (device != null) {
             System.out.println(device.toString());
             try {
-                URI serverUri = new URI("ws://192.168.100.4:8090/web-socket?username=" + new SessionManager(getBaseContext()).getName());
-                MyWebSocketClient client = new MyWebSocketClient(serverUri,device, streamView, this);
+                URI serverUri = new URI("ws://" + ServerManager.SERVER_SOCKET_STRING
+                        + "/web-socket?username=" + new SessionManager(getBaseContext()).getName());
+                MyWebSocketClient client = new MyWebSocketClient(serverUri,
+                                                                 device,
+                                                                 streamView,
+                                                          this);
                 client.connectBlocking(); // Wait for the connection to be established
             } catch (URISyntaxException e) {
                 e.printStackTrace();
