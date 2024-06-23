@@ -45,6 +45,7 @@ public class MyWebSocketClient extends WebSocketClient {
                     System.out.println("Received device list");
                     String deviceToGet = device.getDevice_id().toString().substring(6);
                     deviceToGet = "{ \"type\": \"select_device\", \"device_id\": " + deviceToGet + "}";
+                    System.out.println("deviceToGet: " + deviceToGet);
                     JSONObject jsonObject = new JSONObject(deviceToGet);
                     send(jsonObject.toString());
                     break;
