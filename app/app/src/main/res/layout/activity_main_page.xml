@@ -47,6 +47,7 @@
         android:layout_marginTop="16dp"
         android:background="#2038C1"
         android:backgroundTint="#1F8DE4"
+        android:onClick="findNewDeviceButton_Clicked"
         android:text="Find new device (via BLE)"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />

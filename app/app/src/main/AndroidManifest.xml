@@ -4,6 +4,11 @@
 
     <uses-permission android:name="android.permission.VIBRATE"/>
 
+    <!-- See https://stackoverflow.com/questions/71979680/i-cant-get-my-app-to-ask-for-bluetooth-scan-permission -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- If using ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION has to be used too -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Request legacy Bluetooth permissions on older devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
