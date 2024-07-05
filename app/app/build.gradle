@@ -15,8 +15,20 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "TEST_HARDCODED_WIFI_SSID", "\"testHardcodedWifiSsid\""
-        buildConfigField "String", "TEST_HARDCODED_WIFI_PSK", "\"testHardcodedWifiPsk\""
+        //buildConfigField "String", "TEST_HARDCODED_WIFI_SSID", testHardcodedWifiSsid
+        //buildConfigField "String", "TEST_HARDCODED_WIFI_PSK", testHardcodedWifiPsk
+
+        def gradlePropertiesFile = file("${project.rootDir}/.gradle/gradle.properties")
+        if (gradlePropertiesFile.exists()) {
+            Properties gradleProperties = new Properties()
+            gradleProperties.load(new FileInputStream(gradlePropertiesFile))
+
+            // Define buildConfigFields using the properties
+            buildConfigField "String", "TEST_HARDCODED_WIFI_SSID", gradleProperties["testHardcodedWifiSsid"]
+            buildConfigField "String", "TEST_HARDCODED_WIFI_PSK", gradleProperties["testHardcodedWifiPsk"]
+        } else {
+            throw new GradleException("Properties file not found: ${gradlePropertiesFile}")
+        }
     }
 
     buildTypes {
