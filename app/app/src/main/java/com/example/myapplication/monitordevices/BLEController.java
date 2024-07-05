@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -44,11 +45,21 @@ public class BLEController {
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null) {
-            throw new RuntimeException("Device doesn't support Bluetooth");
+            //throw new RuntimeException("Device doesn't support Bluetooth");
+            new AlertDialog.Builder(context)
+                    .setTitle("Bluetooth not supported")
+                    .setMessage("Your device doesn't support Bluetooth, sorry!")
+                    .show();
+            return;
         }
 
         if (!bluetoothAdapter.isEnabled()) {
-            throw new RuntimeException("Bluetooth is turned off");
+            //throw new RuntimeException("Bluetooth is turned off");
+            new AlertDialog.Builder(context)
+                    .setTitle("Bluetooth turned off")
+                    .setMessage("Please turn Bluetooth on!")
+                    .show();
+            return;
         }
 
         scanForBLE();
