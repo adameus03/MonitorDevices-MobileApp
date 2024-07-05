@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothStatusCodes;
@@ -43,6 +44,8 @@ public class BLEController {
     private Activity activity;
 
     private BluetoothLeScanner bluetoothLeScanner;
+
+    private static final String CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb"; // From Bluetooth core spec, known as "Client Characteristic Configuration". Also listed in this handy github gist: https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 
     public BLEController(Context context, Activity activity) {
         this.context = context;
@@ -172,6 +175,38 @@ public class BLEController {
     private int state = 0;
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+            System.out.println("onDescriptorWrite: descriptor uuid: " + descriptor.getUuid() + ", status: " + status);
+
+            if (status == BluetoothGatt.GATT_SUCCESS && descriptor.getUuid().equals(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID))) {
+                System.out.println("Writing userIdCharacteristic...");
+                if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "bbbbbbbbaaaaaaaa".getBytes())) {
+                    System.out.println("Wrote userIdCharacteristic, waiting for onCharacteristicWrite to be called");
+
+//                    //System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
+//                    System.out.println("Writing wifiSsidCharacteristic...");
+//                    if (this.writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
+//                        System.out.println("Wrote wifiSsidCharacteristic");
+//                        System.out.println("Writing wifiPskCharacteristic...");
+//                        if (this.writeCharacteristicCompat(gatt, wifiPskCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_PSK.getBytes())) {
+//                            System.out.println("Wrote wifiPskCharacteristic");
+//                        }
+//                    } else {
+//                        System.out.println("ERROR - failed to write wifiSsidCharacteristic");
+//                    }
+                } else {
+                    System.out.println("ERROR - failed to write userIdCharacteristic"); // TODO handle this
+                }
+            } else {
+                Log.e(TAG, "onDescriptorWrite - status: " + status);
+            }
+        }
+
+
+
         @Override
         public void onCharacteristicChanged(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value) {
             super.onCharacteristicChanged(gatt, characteristic, value);
@@ -207,12 +242,16 @@ public class BLEController {
                         } else {
                             System.out.println("ERROR - failed to write wifiPskCharacteristic"); // TODO handle this
                         }
+                    } else {
+                        Log.e(TAG, "onCharacteristicWrite for wifi ssid - status: " + status);
                     }
                     break;
                 case 2:
                     if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(UUID.fromString(SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_PSK))) {
                         state = 3;
                         System.out.println("All required characteristics were written and their onCharacteristicWrite were called with status 0");
+                    } else {
+                        Log.e(TAG, "onCharacteristicWrite for wifi psk - status: " + status);
                     }
                     break;
                 case 3:
@@ -264,26 +303,25 @@ public class BLEController {
                     if (gatt.setCharacteristicNotification(networkStateNotificationCharacteristic, true)) {
                         System.out.println("Enabled GATT notifications for networkStateNotificationCharacteristic");
 
-
-
-                        System.out.println("Writing userIdCharacteristic...");
-                        if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "bbbbbbbbaaaaaaaa".getBytes())) {
-                            System.out.println("Wrote userIdCharacteristic, waiting for onCharacteristicWrite to be called");
-
-//                            //System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
-//                            System.out.println("Writing wifiSsidCharacteristic...");
-//                            if (this.writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
-//                                System.out.println("Wrote wifiSsidCharacteristic");
-//                                System.out.println("Writing wifiPskCharacteristic...");
-//                                if (this.writeCharacteristicCompat(gatt, wifiPskCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_PSK.getBytes())) {
-//                                    System.out.println("Wrote wifiPskCharacteristic");
-//                                }
-//                            } else {
-//                                System.out.println("ERROR - failed to write wifiSsidCharacteristic");
-//                            }
-                        } else {
-                            System.out.println("ERROR - failed to write userIdCharacteristic"); // TODO handle this
+                        // Set descriptor value to allow notification
+                        //BluetoothGattDescriptor descriptor = networkStateNotificationCharacteristic.getDescriptor(networkStateNotificationCharacteristic.getUuid()); // Is this correct? - no, need to use CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID
+                        BluetoothGattDescriptor descriptor = networkStateNotificationCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID));
+                        if (descriptor == null) {
+                            throw new RuntimeException("Descriptor not found");
                         }
+                        System.out.println("Setting descriptor value to ENABLE_NOTIFICATION_VALUE...");
+                        if (descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) { // TODO (would require changes in cam firmware - maybe it is not that important?): replace notification with indication? (I heard indication is akin to TCP while notification is akin to UDP. We wouldn't like to loose the notification - confirm this)
+                            System.out.println("Done setting descriptor value to ENABLE_NOTIFICATION_VALUE");
+                            System.out.println("Writing to the descriptor...");
+                            if (gatt.writeDescriptor(descriptor)) {
+                                System.out.println("Wrote to the descriptor, waiting for onDescriptorWrite to be called");
+                            } else {
+                                System.out.println("ERROR - failed to write to the descriptor"); // TODO handle this
+                            }
+                        } else {
+                            System.out.println("ERROR - failed to set descriptor value to ENABLE_NOTIFICATION_VALUE"); // TODO handle this
+                        }
+                        // Writing to the first characteristic was moved to onDescriptorWrite
 
                     } else {
                         System.out.println("ERROR - failed to enable GATT notifications for networkStateNotificationCharacteristic");
