@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+// TODO Use fragments or find a way to handle button clicks in list items or a different approach
 public class DevicesListAdapter extends RecyclerView.Adapter<DevicesListAdapter.DeviceViewHolder> {
 
     private List<Device> devices;

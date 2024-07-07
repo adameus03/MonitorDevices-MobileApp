@@ -48,7 +48,7 @@ public class Device implements Parcelable {
         }
     };
 
-    // Implementacja Parcelable
+    // Implementacja Parcelable (for RecyclerView & passing device additionally to StreamPageManager via Intent)
     @Override
     public int describeContents() {
         return 0;

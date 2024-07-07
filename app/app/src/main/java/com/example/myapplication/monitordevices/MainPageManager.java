@@ -29,7 +29,7 @@ public class MainPageManager extends AppCompatActivity {
         List<Device> deviceList = new ArrayList<>();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true); // TODO for sure?
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
 

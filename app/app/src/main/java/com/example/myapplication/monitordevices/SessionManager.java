@@ -2,6 +2,10 @@ package com.example.myapplication.monitordevices;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -110,22 +114,64 @@ public class SessionManager {
         Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
         List<String> ssidsList = new ArrayList<>(ssids);
         List<String> psksList = new ArrayList<>(psks);
-        List<SavedNetwork> savedNetworks = new ArrayList<>();
+
         if (ssidsList.size() != psksList.size()) {
-            throw new RuntimeException("Number of SSIDs and PSKs read from SharedPreferences didn't match");
+            throw new RuntimeException("Number of SSIDs and PSKs read from SharedPreferences didn't match - number of SSIDs: " + ssidsList.size() + ", number of PSKs: " + psksList.size());
         }
+
+        List<SavedNetwork> savedNetworks = new ArrayList<>();
         for (int i = 0; i < ssidsList.size(); i++) {
             savedNetworks.add(new SavedNetwork(ssidsList.get(i), psksList.get(i)));
         }
         return savedNetworks;
     }
 
-    public static class SavedNetwork {
+    // TODO Refactor - Extract to a dedicated file?
+    public static class SavedNetwork implements Parcelable {
         public final String ssid;
         public final String psk;
         public SavedNetwork(String ssid, String psk) {
             this.ssid = ssid;
             this.psk = psk;
+        }
+
+        protected SavedNetwork(Parcel in) {
+            ssid = in.readString();
+            psk = in.readString();
+        }
+
+        // Parcelable CREATOR - required for implementing Parcelable
+        public static final Creator<SavedNetwork> CREATOR = new Creator<SavedNetwork>() {
+            @Override
+            public SavedNetwork createFromParcel(Parcel in) {
+                return new SavedNetwork(in);
+            }
+
+            @Override
+            public SavedNetwork[] newArray(int size) {
+                return new SavedNetwork[size];
+            }
+        };
+
+        // Parcelable implementation (used for RecyclerView)
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
+//            dest.writeParcelable(device_id, flags);
+//            dest.writeParcelable(mac_address, flags);
+//            dest.writeParcelable(auth_key, flags);
+//            dest.writeByte((byte) (registration_first_stage ? 1 : 0));
+//            dest.writeParcelable(user_id, flags);
+//            dest.writeString(createdAt);
+//            dest.writeString(updatedAt);
+//            dest.writeInt(number);
+
+            dest.writeString(ssid);
+            dest.writeString(psk);
         }
     }
 }

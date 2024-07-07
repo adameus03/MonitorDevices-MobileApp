@@ -17,7 +17,7 @@ import java.util.Base64;
 
 /**
  * TODO [priority = 2/5, difficulity: 2/5] Enhance separation of networking and GUI
- * TODO [priority = 2/5, difficulity: 1/5] Refactor the name of this class
+ * TODO [priority = 1/5, difficulity: 1/5] Refactor the name of this class
  */
 public class MyWebSocketClient extends WebSocketClient {
     private Device device;
