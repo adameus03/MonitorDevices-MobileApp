@@ -32,6 +32,9 @@ import java.util.UUID;
 
 /**
  * TODO [priority: 1/5, difficulty: 1/5] - switch from System.out.println calls to android.util.Log
+ * TODO [priority 2/5, difficulty 2/5] - separate user alerts (bluetooth turned off, bluetooth not supported, device not found, device connected to Wi-Fi, device not connected to Wi-Fi) from the communications logic - use events/callbacks?
+ * TODO [priority 2/5, difficulty 1/5] - create separate public methods instead of doing everything when constructor is called
+ * TODO [priority 5/5, difficulty 1/5] - pass characteristics to send during registration either into constructor or to a setter method (the second option is rather preffered, as then, this class (and the GATT connection) can be reused for multiple tries)
  */
 public class BLEController {
     static String TAG = "BLEController";
@@ -102,9 +105,23 @@ public class BLEController {
                         System.out.println("In postDelayed callback, but no permissions");
                         return;
                     }
-                    System.out.println("In postDelayed callback, stopping scan");
-                    bluetoothLeScanner.stopScan(bleScanCallback);
-                    System.out.println("SCANNING STOPPED by postDelayed callback");
+
+                    if (!sauCameraDeviceFound) {
+                        System.out.println("In postDelayed callback, stopping scan");
+                        bluetoothLeScanner.stopScan(bleScanCallback);
+                        System.out.println("SCANNING STOPPED by postDelayed callback");
+
+                        System.out.println("No SAU camera device found");
+                        // Notify the user that the camera device was not found
+                        new AlertDialog.Builder(context)
+                                .setTitle("Camera device not found")
+                                .setMessage("Is the camera turned on? Is it close enough? Are you sure you aren't trying to register an already registered camera? (it has bluetooth LE turned off then, need to unregister it first to turn it into registration mode).")
+                                .show();
+
+                    } else {
+                        System.out.println("In postDelayed callback, but the camera device was found");
+                    }
+
                 }, SCAN_PERIOD);
 
                 scanning = true;
@@ -122,6 +139,8 @@ public class BLEController {
 
     }
 
+    private boolean sauCameraDeviceFound = false;
+
     private ScanCallback bleScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -134,6 +153,7 @@ public class BLEController {
                 System.out.println("DISCOVERED NEW DEVICE: " + result.getDevice().toString() + ", name: " + deviceName);
 
                 if (deviceName != null && deviceName.equals("SAU Camera Device")) {
+                    sauCameraDeviceFound = true;
                     System.out.println("Found SAU camera device: " + device.toString());
                     bluetoothLeScanner.stopScan(bleScanCallback);
                     System.out.println("SCANNING STOPPED AS THE TARGET DEVICE WAS FOUND.");
@@ -176,6 +196,7 @@ public class BLEController {
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
 
+
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
@@ -183,10 +204,10 @@ public class BLEController {
 
             if (status == BluetoothGatt.GATT_SUCCESS && descriptor.getUuid().equals(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID))) {
                 System.out.println("Writing userIdCharacteristic...");
-                if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "bbbbbbbbaaaaaaaa".getBytes())) {
+                if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "aaaaaaaabbbbbbbb".getBytes())) {
                     System.out.println("Wrote userIdCharacteristic, waiting for onCharacteristicWrite to be called");
 
-//                    //System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
+                    System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
 //                    System.out.println("Writing wifiSsidCharacteristic...");
 //                    if (this.writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
 //                        System.out.println("Wrote wifiSsidCharacteristic");
@@ -206,12 +227,32 @@ public class BLEController {
         }
 
 
+        @Override
+        public void onDescriptorRead(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattDescriptor descriptor, int status, @NonNull byte[] value) {
+            System.out.println("ONDESCRIPTORREAD");
+            super.onDescriptorRead(gatt, descriptor, status, value);
+
+        }
 
         @Override
         public void onCharacteristicChanged(@NonNull BluetoothGatt gatt, @NonNull BluetoothGattCharacteristic characteristic, @NonNull byte[] value) {
+            System.out.println("ONCHARACTERISTICCHANGED (API level >= 33)");
             super.onCharacteristicChanged(gatt, characteristic, value);
 
-            System.out.println("RECEIVED NOTIFICATION: " + new String(value)); // TODO verify if this is correct
+            System.out.println("RECEIVED NOTIFICATION (api ver >= 33)");
+
+            handleDeviceFeedbackNotification(value);
+        }
+
+        @Override
+        public void onCharacteristicChanged (BluetoothGatt gatt,
+                                             BluetoothGattCharacteristic characteristic) {
+            System.out.println("ONCHARACTERISTICCHANGED (API level < 33)");
+            super.onCharacteristicChanged(gatt, characteristic);
+
+            System.out.println("RECEIVED NOTIFICATION (api ver < 33)");
+
+            handleDeviceFeedbackNotification(characteristic.getValue());
         }
 
         @Override
@@ -250,6 +291,15 @@ public class BLEController {
                     if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(UUID.fromString(SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_PSK))) {
                         state = 3;
                         System.out.println("All required characteristics were written and their onCharacteristicWrite were called with status 0");
+
+//                        System.out.println("Sleeping for 60 seconds...");
+//                        // Sleep for 60 seconds
+//                        try {
+//                            Thread.sleep(60000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        System.out.println("Woke up after 60 seconds sleep");
                     } else {
                         Log.e(TAG, "onCharacteristicWrite for wifi psk - status: " + status);
                     }
@@ -284,11 +334,24 @@ public class BLEController {
 
                 sauRegistrationService = gatt.getService(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_UUID));
 
+                userIdCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_USER_ID));
                 wifiSsidCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_SSID));
                 wifiPskCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_PSK));
-                userIdCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_USER_ID));
 
                 networkStateNotificationCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_NOTIFIER_UUID_NETWORK_STATE));
+                //networkStateNotificationCharacteristic.describeContents()
+
+                userIdCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE); // May be better defensively set as WRITE_TYPE_DEFAULT if needed, see below
+                wifiSsidCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE); // May be better defensively set as WRITE_TYPE_DEFAULT if needed, see below
+                wifiPskCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT); // WRITE_TYPE_NO_RESPONSE for some reason truncates
+                                                                                        // characteristic values longer than 20 characters - not sure why
+                                                                                      // (in Wireshark the ATT protocol MTU enforced splitting characteristic data into chunks of 18 bytes,
+                                                                                      // however maybe the other times the MTU was greater and allowed a chunk of 20 bytes -
+                                                                                      // if you want to know, we need to re-check with Wireshark and seek in the documentation of ATT protocol for more information)
+
+
+                int props = networkStateNotificationCharacteristic.getProperties();
+                System.out.println("networkStateNotificationCharacteristic properties: " + props);
 
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -305,6 +368,15 @@ public class BLEController {
 
                         // Set descriptor value to allow notification
                         //BluetoothGattDescriptor descriptor = networkStateNotificationCharacteristic.getDescriptor(networkStateNotificationCharacteristic.getUuid()); // Is this correct? - no, need to use CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID
+
+                        System.out.println("Listing descriptors for networkStateNotificationCharacteristic...");
+                        networkStateNotificationCharacteristic.getDescriptors().forEach((descriptor) -> {
+                            System.out.println("Descriptor uuid: " + descriptor.getUuid());
+                            System.out.println("Descriptor value: " + descriptor.getValue());
+                            System.out.println("Permissions: " + descriptor.getPermissions());
+                        });
+                        System.out.println("Done listing descriptors for networkStateNotificationCharacteristic");
+
                         BluetoothGattDescriptor descriptor = networkStateNotificationCharacteristic.getDescriptor(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID));
                         if (descriptor == null) {
                             throw new RuntimeException("Descriptor not found");
@@ -367,8 +439,47 @@ public class BLEController {
         try {
             System.out.println("Connecting to the GATT server...");
             BluetoothGatt gattConnection = device.connectGatt(this.context, false, this.gattCallback, BluetoothDevice.TRANSPORT_LE);
+            //gattConnection.setPreferredPhy();
         } catch (SecurityException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void handleDeviceFeedbackNotification(byte[] data) {
+        System.out.println("In handleDeviceFeedbackNotification");
+
+        System.out.println("Data length: " + data.length + " byte"); // Should be 1 byte - 0x01 if WiFi network was connected successfully, 0x00 otherwise
+
+        if (data.length != 1) {
+            throw new RuntimeException("Invalid GATT notification - feedback data length: " + data.length + " bytes, while should be 1 byte - 0x01 if WiFi network was connected successfully, 0x00 otherwise");
+        }
+
+        switch (data[0]) {
+            case 0x00:
+                //Device failed to connect to the WiFi network
+                Log.d(TAG, "Remote device failed to connect to the WiFi network");
+                //ask user to try again
+                handler.post(() -> new AlertDialog.Builder(context)
+                        .setTitle("Camera device failed to connect Wi-Fi network")
+                        .setMessage("Try again? Possibly fix Wi-Fi SSID and/or password.")
+                        .show());
+
+                //TODO Should we close the GATT connection here? - probably not, unless there's a good reason for that. It can be reused when the user retries to register the camera.
+                break;
+            case 0x01:
+                //Device connected to the WiFi network
+                Log.d(TAG, "Remote device successfully connected to the WiFi network");
+
+                // GATT connection should be closed by the peripheral after the WiFi network connection is successful
+
+                //notify user that the connection was successful and registration will be soon completed with the server
+                handler.post(() -> new AlertDialog.Builder(context)
+                        .setTitle("Camera device connected to Wi-Fi network")
+                        .setMessage("Registration will be completed soon with the server. You can close the app and after you reopen it, the added camera should be visible.") // TODO save the user from needing to close and reopen the app
+                        .show());
+                break;
+            default:
+                throw new RuntimeException("Invalid GATT notification detected - feedback data contains an unsupported byte value other than 0x00 or 0x01: " + data[0]);
         }
     }
 }

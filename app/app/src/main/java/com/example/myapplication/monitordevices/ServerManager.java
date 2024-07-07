@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 public class ServerManager {
-    //public static final String SERVER_SOCKET_STRING = "192.168.1.15:8090";
-    public static final String SERVER_SOCKET_STRING = "192.168.150.32:8090";
+    public static final String SERVER_SOCKET_STRING = "192.168.1.15:8090";
+    //public static final String SERVER_SOCKET_STRING = "192.168.150.32:8090";
     //public static final String SERVER_SOCKET_STRING = "10.128.153.164:8090";
     private static final String BASE_URL = "http://" + SERVER_SOCKET_STRING;
     private String REGISTER_URL = BASE_URL + "/register/user";
