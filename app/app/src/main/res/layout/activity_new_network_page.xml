@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextText3"
+        android:id="@+id/editText_networkPSK"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="88dp"
@@ -29,10 +29,10 @@
         android:hint="Network PSK"
         android:inputType="textPassword"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_networkSSID" />
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/editText_networkSSID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="88dp"
@@ -53,14 +53,14 @@
         android:onClick="newNetworkButton_Clicked"
         android:text="Save network"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_networkPSK" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="68dp"
-        android:text="Note: This data is needed for the camera devices to connect to the network. We can't take this data from the system as we are not a privileged app. Therefore unfortunately you need to provide this data manually."
+        android:text="Note: This data is needed for the camera devices to connect to the network. We can't take this data from the system as we are not a privileged app. Therefore unfortunately you need to provide this data manually. The network credentials will only be stored on this phone and on the camera device using it for connection."
         app:layout_constraintTop_toBottomOf="@+id/button2"
         tools:layout_editor_absoluteX="0dp" />
 
