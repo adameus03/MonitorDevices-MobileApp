@@ -69,7 +69,7 @@ public class GetDevicesManager {
                 serverCallback.onServerResponse(result);
             } else {
                 Log.e("AddUserTask", "Error during request!:"  + errorMessage);
-                serverCallback.onServerResponse(result);
+                serverCallback.onServerResponse(null);
             }
         }
     }

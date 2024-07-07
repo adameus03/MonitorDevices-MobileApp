@@ -71,4 +71,9 @@ public class MainPageManager extends AppCompatActivity {
         BLEController bleController = new BLEController(this, this);
         System.out.println("BLEController constructed");
     }
+
+    public void networksButton_Clicked(View view) {
+        Intent intent = new Intent(this, NetworksPageManager.class);
+        startActivity(intent);
+    }
 }

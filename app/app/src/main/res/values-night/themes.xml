@@ -7,5 +7,8 @@
         <item name="colorSecondary">@color/bright_f3f3f3</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/dark_2e2e2e</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>

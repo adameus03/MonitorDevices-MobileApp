@@ -2,32 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
-
-    <!-- See https://stackoverflow.com/questions/71979680/i-cant-get-my-app-to-ask-for-bluetooth-scan-permission -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- If using ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION has to be used too -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Request legacy Bluetooth permissions on older devices. -->
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- See https://stackoverflow.com/questions/71979680/i-cant-get-my-app-to-ask-for-bluetooth-scan-permission -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- If using ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION has to be used too -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Request legacy Bluetooth permissions on older devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
-    <!-- Needed only if your app looks for Bluetooth devices.
+    <!--
+ Needed only if your app looks for Bluetooth devices.
          If your app doesn't use Bluetooth scan results to derive physical
          location information, you can
          <a href="#assert-never-for-location">strongly assert that your app
-         doesn't derive physical location</a>. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
-
-
-
-    <!-- Needed only if your app communicates with already-paired Bluetooth
-         devices. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-
-    <!-- Needed only if your app uses Bluetooth scan results to derive physical location. -->
-
+         doesn't derive physical location</a>.
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <!--
+ Needed only if your app communicates with already-paired Bluetooth
+         devices.
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> <!-- Needed only if your app uses Bluetooth scan results to derive physical location. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -38,8 +30,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MonitorDevices"
-        tools:targetApi="31"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        <activity
+            android:name=".NewNetworkPageManager"
+            android:exported="false" />
+        <activity
+            android:name=".NetworksPageManager"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -53,10 +51,10 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity android:name=".LoginFormManager"></activity>
-        <activity android:name=".RegistrationFormManager"></activity>
-        <activity android:name=".MainPageManager"></activity>
-        <activity android:name=".StreamPageManager"></activity>
+        <activity android:name=".LoginFormManager" />
+        <activity android:name=".RegistrationFormManager" />
+        <activity android:name=".MainPageManager" />
+        <activity android:name=".StreamPageManager" />
     </application>
 
 </manifest>
