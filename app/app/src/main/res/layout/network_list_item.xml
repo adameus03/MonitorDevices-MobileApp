@@ -1,4 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -13,9 +15,17 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="304dp"
+        android:layout_width="261dp"
         android:layout_height="match_parent"
         android:paddingTop="16dp"
-        android:textSize="32sp"
-        android:textColor="@color/dark_2e2e2e"/>
+        android:textColor="@color/dark_2e2e2e"
+        android:textSize="32sp" />
+
+    <ImageView
+        android:id="@+id/imageView_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/trash"
+        tools:srcCompat="@drawable/trash" />
 </LinearLayout>

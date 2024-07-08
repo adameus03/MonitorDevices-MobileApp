@@ -43,7 +43,7 @@ public class NetworksPageManager extends AppCompatActivity {
 
         NetworksListAdapter adapter = new NetworksListAdapter(adapterNetworksList, new NetworksListAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(SessionManager.SavedNetwork network) {
+            public void onItemClick(SessionManager.SavedNetwork network, NetworksListAdapter adapter) {
 //                Intent intent = new Intent(getBaseContext(), StreamPageManager.class);
 //                intent.putExtra("network", network);
 //                startActivity(intent);
@@ -53,6 +53,14 @@ public class NetworksPageManager extends AppCompatActivity {
                         .setMessage(network.psk)
                         .show();
             }
+        }, new NetworksListAdapter.OnItemDeleteClickListener() {
+
+            @Override
+            public void onItemDeleteClick(SessionManager.SavedNetwork network, NetworksListAdapter adapter) {
+                //delete network
+                adapter.removeNetwork(network);
+                new SessionManager(getBaseContext()).removeNetwork(network.ssid);
+            }
         });
 
         List<SessionManager.SavedNetwork> savedNetworks = new SessionManager(getBaseContext()).getSavedNetworks();
@@ -60,7 +68,8 @@ public class NetworksPageManager extends AppCompatActivity {
         for (SessionManager.SavedNetwork network : savedNetworks) {
             System.out.println("PROVIDING NETWORK TO ADAPTER");
             // device.setNumber(camNumber);
-            adapterNetworksList.add(network);
+            //adapterNetworksList.add(network);
+            adapter.addNetwork(network);
         }
 
         recyclerView.setLayoutManager(layoutManager);
