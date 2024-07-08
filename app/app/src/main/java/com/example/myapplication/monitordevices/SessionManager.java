@@ -7,6 +7,9 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,60 +48,100 @@ public class SessionManager {
 
     // TODO use exceptions instead of retuning false for multiple reasons
     public boolean saveNetwork(String ssid, String psk) {
-        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
-        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
+        String netsJson = sharedPreferences.getString("nets", "[]");
+        List<SavedNetwork> nets = new Gson().fromJson(netsJson, new TypeToken<List<SavedNetwork>>() {}.getType());
 
         // Check if the SSID already exists
-        if (ssids.contains(ssid)) {
+        if (nets.stream().anyMatch(n -> n.ssid.equals(ssid))) {
             System.out.println("SSID already found in SharedPreferences");
             return false;
         }
 
+        // Add new network to the list
+        nets.add(new SavedNetwork(ssid, psk));
 
-
-        // Add the SSID and PSK to the sets
-        ssids.add(ssid);
-        psks.add(psk);
-        // Save the sets back to SharedPreferences
-        editor.putStringSet("ssids", ssids);
-        editor.putStringSet("psks", psks);
+        // Save the list back to SharedPreferences
+        editor.putString("nets", new Gson().toJson(nets));
         if (!editor.commit()) {
             System.out.println("Failed to save network to SharedPreferences");
             return false;
         }
         return true;
 
+//        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
+//        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
+//
+//        // Check if the SSID already exists
+//        if (ssids.contains(ssid)) {
+//            System.out.println("SSID already found in SharedPreferences");
+//            return false;
+//        }
+//
+//
+//
+//        // Add the SSID and PSK to the sets
+//        ssids.add(ssid);
+//        psks.add(psk);
+//        // Save the sets back to SharedPreferences
+//        editor.putStringSet("ssids", ssids);
+//        editor.putStringSet("psks", psks);
+//        if (!editor.commit()) {
+//            System.out.println("Failed to save network to SharedPreferences");
+//            return false;
+//        }
+//        return true;
+
     }
 
     // TODO use exceptions instead of retuning false for multiple reasons
     public boolean removeNetwork(String ssid) {
-        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
-        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
+        String netsJson = sharedPreferences.getString("nets", "[]");
+        List<SavedNetwork> nets = new Gson().fromJson(netsJson, new TypeToken<List<SavedNetwork>>() {}.getType());
 
         // Check if the SSID exists
-        if (!ssids.contains(ssid)) {
+        if (!nets.stream().anyMatch(n -> n.ssid.equals(ssid))) {
             System.out.println("SSID not found in SharedPreferences");
             return false;
         }
 
-        List<String> ssidsList = new ArrayList<>(ssids);
-        List<String> psksList = new ArrayList<>(psks);
+        // Remove the network from the list
+        nets.removeIf(n -> n.ssid.equals(ssid));
 
-        int networkIndex = ssidsList.indexOf(ssid);
-        ssidsList.remove(networkIndex);
-        psksList.remove(networkIndex);
-
-        Set<String> newSsids = new HashSet<>(ssidsList);
-        Set<String> newPsks = new HashSet<>(psksList);
-
-        // Save new sets back to SharedPreferences
-        editor.putStringSet("ssids", newSsids);
-        editor.putStringSet("psks", newPsks);
+        // Save the list back to SharedPreferences
+        editor.putString("nets", new Gson().toJson(nets));
         if (!editor.commit()) {
             System.out.println("Failed to remove network from SharedPreferences");
             return false;
         }
         return true;
+
+//        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
+//        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
+//
+//        // Check if the SSID exists
+//        if (!ssids.contains(ssid)) {
+//            System.out.println("SSID not found in SharedPreferences");
+//            return false;
+//        }
+//
+//        List<String> ssidsList = new ArrayList<>(ssids);
+//        List<String> psksList = new ArrayList<>(psks);
+//
+//        int networkIndex = ssidsList.indexOf(ssid);
+//        ssidsList.remove(networkIndex);
+//        psksList.remove(networkIndex);
+//
+//        Set<String> newSsids = new HashSet<>(ssidsList);
+//        Set<String> newPsks = new HashSet<>(psksList);
+//
+//        // Save new sets back to SharedPreferences
+//        editor.putStringSet("ssids", newSsids);
+//        editor.putStringSet("psks", newPsks);
+//        if (!editor.commit()) {
+//            System.out.println("Failed to remove network from SharedPreferences");
+//            return false;
+//        }
+//        return true;
     }
 
     public String getName(){return sharedPreferences.getString(KEY_NAME, null);}
@@ -110,20 +153,23 @@ public class SessionManager {
     }
 
     public List<SavedNetwork> getSavedNetworks() {
-        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
-        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
-        List<String> ssidsList = new ArrayList<>(ssids);
-        List<String> psksList = new ArrayList<>(psks);
+        String netsJson = sharedPreferences.getString("nets", "[]");
+        return new Gson().fromJson(netsJson, new TypeToken<List<SavedNetwork>>() {}.getType());
 
-        if (ssidsList.size() != psksList.size()) {
-            throw new RuntimeException("Number of SSIDs and PSKs read from SharedPreferences didn't match - number of SSIDs: " + ssidsList.size() + ", number of PSKs: " + psksList.size());
-        }
-
-        List<SavedNetwork> savedNetworks = new ArrayList<>();
-        for (int i = 0; i < ssidsList.size(); i++) {
-            savedNetworks.add(new SavedNetwork(ssidsList.get(i), psksList.get(i)));
-        }
-        return savedNetworks;
+//        Set<String> ssids = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("ssids", null), new HashSet<>()));
+//        Set<String> psks = new HashSet<>(CustomUtils.requireNonNullElse(sharedPreferences.getStringSet("psks", null), new HashSet<>()));
+//        List<String> ssidsList = new ArrayList<>(ssids);
+//        List<String> psksList = new ArrayList<>(psks);
+//
+//        if (ssidsList.size() != psksList.size()) {
+//            throw new RuntimeException("Number of SSIDs and PSKs read from SharedPreferences didn't match - number of SSIDs: " + ssidsList.size() + ", number of PSKs: " + psksList.size());
+//        }
+//
+//        List<SavedNetwork> savedNetworks = new ArrayList<>();
+//        for (int i = 0; i < ssidsList.size(); i++) {
+//            savedNetworks.add(new SavedNetwork(ssidsList.get(i), psksList.get(i)));
+//        }
+//        return savedNetworks;
     }
 
     // TODO Refactor - Extract to a dedicated file?
