@@ -20,6 +20,7 @@ public class SessionManager {
     private static final String PREF_NAME = "token";
     private static final String KEY_TOKEN = "JWT";
     private static final String KEY_NAME = "name";
+    private static final String KEY_USER_ID = "user_id";
 
     private static final String KEY_EMAIL = "email";
 
@@ -43,6 +44,13 @@ public class SessionManager {
 
     public void saveName(String name) {
         editor.putString(KEY_NAME, name);
+        editor.commit();
+    }
+
+    public void saveUserId(Buffer userId) {
+        Gson gson = new Gson();
+        String json = gson.toJson(userId);
+        editor.putString(KEY_USER_ID, json);
         editor.commit();
     }
 
@@ -145,6 +153,11 @@ public class SessionManager {
     }
 
     public String getName(){return sharedPreferences.getString(KEY_NAME, null);}
+    public Buffer getUserId(){
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(KEY_USER_ID, null);
+        return gson.fromJson(json, Buffer.class);
+    }
 
     public String getEmail(){return sharedPreferences.getString(KEY_EMAIL, null);}
 

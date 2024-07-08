@@ -15,9 +15,9 @@ import java.util.List;
 // DONE: Support for removing networks
 public class NetworksListAdapter extends RecyclerView.Adapter<NetworksListAdapter.NetworkViewHolder> {
 
-    private List<SessionManager.SavedNetwork> networks;
-    private OnItemClickListener itemClickListener;
-    private OnItemDeleteClickListener itemDeleteListener;
+    private final List<SessionManager.SavedNetwork> networks;
+    private final OnItemClickListener itemClickListener;
+    private final OnItemDeleteClickListener itemDeleteListener;
 
     public interface OnItemClickListener {
         void onItemClick(SessionManager.SavedNetwork network, NetworksListAdapter adapter);

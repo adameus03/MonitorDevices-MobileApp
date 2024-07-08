@@ -54,6 +54,7 @@ public class LoginFormManager extends AppCompatActivity {
                     //sessionManager.saveEmail("bartek@example.com");
                     sessionManager.saveEmail(email);
                     sessionManager.saveName(flatResponse.username);
+                    sessionManager.saveUserId(flatResponse.user_id);
                     Intent intent = new Intent(getBaseContext(), MainPageManager.class);
                     startActivity(intent);
                     finish();

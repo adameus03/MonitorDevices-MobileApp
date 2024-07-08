@@ -40,13 +40,16 @@ public class LoginManager {
 
     private class LoginResponseBody {
         public String username;
+        public Buffer user_id;
     }
     public class LoginResponseFlattened {
         public String username;
+        public Buffer user_id;
         public String token;
 
-        public LoginResponseFlattened(String username, String token) {
+        public LoginResponseFlattened(String username, Buffer user_id, String token) {
             this.username = username;
+            this.user_id = user_id;
             this.token = token;
         }
     }
@@ -98,6 +101,7 @@ public class LoginManager {
                                                                     LoginResponseBody.class);
                 LoginResponseFlattened loginResponseFlattened = new LoginResponseFlattened(
                         loginResponseBody.username,
+                        loginResponseBody.user_id,
                         response.headers().get("Authorization")
                 );
 

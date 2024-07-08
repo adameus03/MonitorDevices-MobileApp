@@ -34,10 +34,21 @@ import java.util.UUID;
  * TODO [priority: 1/5, difficulty: 1/5] - switch from System.out.println calls to android.util.Log
  * TODO [priority 2/5, difficulty 2/5] - separate user alerts (bluetooth turned off, bluetooth not supported, device not found, device connected to Wi-Fi, device not connected to Wi-Fi) from the communications logic - use events/callbacks?
  * TODO [priority 2/5, difficulty 1/5] - create separate public methods instead of doing everything when constructor is called
- * TODO [priority 5/5, difficulty 1/5] - pass characteristics to send during registration either into constructor or to a setter method (the second option is rather preffered, as then, this class (and the GATT connection) can be reused for multiple tries)
+ * DONE [priority 5/5, difficulty 1/5] - pass characteristics to send during registration either into constructor or to a setter method (the second option is rather preffered, as then, this class (and the GATT connection) can be reused for multiple tries)
  */
 public class BLEController {
     static String TAG = "BLEController";
+    static boolean USE_TEST_HARDCODED_CHARACTERISTICS = false;
+
+
+    public static int BLE_CONTROLLER_RESULT_BT_OFF = -1;
+    public static int BLE_CONTROLLER_RESULT_BT_NOT_SUPPORTED = -2;
+    public static int BLE_CONTROLLER_RESULT_DEV_NOT_FOUND = -3;
+    public static int BLE_CONTROLLER_RESULT_ERROR_NULL_SERVICE = -4;
+
+    public static int BLE_CONTROLLER_RESULT_DEV_WIFI_CONN_FAIL = 1;
+    public static int BLE_CONTROLLER_RESULT_DEV_WIFI_CONN_SUCCESS = 2;
+
     private BluetoothAdapter bluetoothAdapter;
     //private BLEDeviceListAdapter bleDeviceListAdapter = new BLEDeviceListAdapter();
     private boolean scanning = false;
@@ -50,26 +61,39 @@ public class BLEController {
 
     private static final String CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb"; // From Bluetooth core spec, known as "Client Characteristic Configuration". Also listed in this handy github gist: https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 
-    public BLEController(Context context, Activity activity) {
+    private final String network_ssid;
+    private final String network_psk;
+    private final Buffer user_id;
+
+    public BLEController(Context context, Activity activity, String network_ssid, String network_psk, Buffer user_id) {
         this.context = context;
         this.activity = activity;
+
+        this.network_ssid = network_ssid;
+        this.network_psk = network_psk;
+        this.user_id = user_id;
+
         BluetoothManager bluetoothManager = (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null) {
             //throw new RuntimeException("Device doesn't support Bluetooth");
-            new AlertDialog.Builder(context)
-                    .setTitle("Bluetooth not supported")
-                    .setMessage("Your device doesn't support Bluetooth, sorry!")
-                    .show();
+//            new AlertDialog.Builder(context)
+//                    .setTitle("Bluetooth not supported")
+//                    .setMessage("Your device doesn't support Bluetooth, sorry!")
+//                    .show();
+            activity.setResult(BLE_CONTROLLER_RESULT_BT_NOT_SUPPORTED);
+            activity.finish();
             return;
         }
 
         if (!bluetoothAdapter.isEnabled()) {
             //throw new RuntimeException("Bluetooth is turned off");
-            new AlertDialog.Builder(context)
-                    .setTitle("Bluetooth turned off")
-                    .setMessage("Please turn Bluetooth on!")
-                    .show();
+//            new AlertDialog.Builder(context)
+//                    .setTitle("Bluetooth turned off")
+//                    .setMessage("Please turn Bluetooth on!")
+//                    .show();
+            activity.setResult(BLE_CONTROLLER_RESULT_BT_OFF);
+            activity.finish();
             return;
         }
 
@@ -113,10 +137,12 @@ public class BLEController {
 
                         System.out.println("No SAU camera device found");
                         // Notify the user that the camera device was not found
-                        new AlertDialog.Builder(context)
-                                .setTitle("Camera device not found")
-                                .setMessage("Is the camera turned on? Is it close enough? Are you sure you aren't trying to register an already registered camera? (it has bluetooth LE turned off then, need to unregister it first to turn it into registration mode).")
-                                .show();
+//                        new AlertDialog.Builder(context)
+//                                .setTitle("Camera device not found")
+//                                .setMessage("Is the camera turned on? Is it close enough? Are you sure you aren't trying to register an already registered camera? (it has bluetooth LE turned off then, need to unregister it first to turn it into registration mode).")
+//                                .show();
+                        activity.setResult(BLE_CONTROLLER_RESULT_DEV_NOT_FOUND);
+                        activity.finish();
 
                     } else {
                         System.out.println("In postDelayed callback, but the camera device was found");
@@ -204,10 +230,13 @@ public class BLEController {
 
             if (status == BluetoothGatt.GATT_SUCCESS && descriptor.getUuid().equals(UUID.fromString(CLIENT_CHARACTERISTIC_CONFIGURATION_DESCRIPTOR_UUID))) {
                 System.out.println("Writing userIdCharacteristic...");
-                if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "aaaaaaaabbbbbbbb".getBytes())) {
+
+                //if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, "aaaaaaaabbbbbbbb".getBytes())) {
+                if (this.writeCharacteristicCompat(gatt, userIdCharacteristic, user_id.getData())) {
                     System.out.println("Wrote userIdCharacteristic, waiting for onCharacteristicWrite to be called");
 
-                    System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
+                    //System.out.println("The wifi ssid and psk are: " + BuildConfig.TEST_HARDCODED_WIFI_SSID + ", " + BuildConfig.TEST_HARDCODED_WIFI_PSK);
+
 //                    System.out.println("Writing wifiSsidCharacteristic...");
 //                    if (this.writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
 //                        System.out.println("Wrote wifiSsidCharacteristic");
@@ -241,7 +270,7 @@ public class BLEController {
 
             System.out.println("RECEIVED NOTIFICATION (api ver >= 33)");
 
-            handleDeviceFeedbackNotification(value);
+            handleDeviceFeedbackNotification(value, gatt);
         }
 
         @Override
@@ -252,7 +281,7 @@ public class BLEController {
 
             System.out.println("RECEIVED NOTIFICATION (api ver < 33)");
 
-            handleDeviceFeedbackNotification(characteristic.getValue());
+            handleDeviceFeedbackNotification(characteristic.getValue(), gatt);
         }
 
         @Override
@@ -265,7 +294,8 @@ public class BLEController {
                     if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(UUID.fromString(SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_USER_ID))) {
                         state = 1;
                         System.out.println("Writing wifiSsidCharacteristic...");
-                        if (writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
+                        //if (writeCharacteristicCompat(gatt, wifiSsidCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes())) {
+                        if (writeCharacteristicCompat(gatt, wifiSsidCharacteristic, network_ssid.getBytes())) {
                             System.out.println("Wrote wifiSsidCharacteristic, waiting for onCharacteristicWrite to be called");
                         } else {
                             System.out.println("ERROR - failed to write wifiSsidCharacteristic"); // TODO handle this
@@ -278,7 +308,8 @@ public class BLEController {
                     if (status == BluetoothGatt.GATT_SUCCESS && characteristic.getUuid().equals(UUID.fromString(SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_SSID))) {
                         state = 2;
                         System.out.println("Writing wifiPskCharacteristic...");
-                        if (writeCharacteristicCompat(gatt, wifiPskCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_PSK.getBytes())) {
+                        //if (writeCharacteristicCompat(gatt, wifiPskCharacteristic, BuildConfig.TEST_HARDCODED_WIFI_PSK.getBytes())) {
+                        if (writeCharacteristicCompat(gatt, wifiPskCharacteristic, network_psk.getBytes())) {
                             System.out.println("Wrote wifiPskCharacteristic, waiting for onCharacteristicWrite to be called");
                         } else {
                             System.out.println("ERROR - failed to write wifiPskCharacteristic"); // TODO handle this
@@ -318,7 +349,19 @@ public class BLEController {
                     return BluetoothStatusCodes.SUCCESS == gatt.writeCharacteristic(characteristic, value, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
                 } else {
                     // Backport using deprecated version of writeCharacteristic
-                    characteristic.setValue(value);
+                    if (USE_TEST_HARDCODED_CHARACTERISTICS) {
+                        if (characteristic.equals(userIdCharacteristic)) {
+                            value = "aaaaaaaabbbbbbbb".getBytes();
+                        } else if (characteristic.equals(wifiSsidCharacteristic)) {
+                            value = BuildConfig.TEST_HARDCODED_WIFI_SSID.getBytes();
+                        } else if (characteristic.equals(wifiPskCharacteristic)) {
+                            value = BuildConfig.TEST_HARDCODED_WIFI_PSK.getBytes();
+                        } else {
+                            throw new RuntimeException("Invalid characteristic: " + characteristic);
+                        }
+                    } else {
+                        characteristic.setValue(value);
+                    }
                     return gatt.writeCharacteristic(characteristic);
                 }
             } catch (SecurityException e) {
@@ -333,6 +376,14 @@ public class BLEController {
                 System.out.println("GATT services discovered.");
 
                 sauRegistrationService = gatt.getService(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_UUID));
+
+                if (sauRegistrationService == null) { // TODO I don't know why could this happen
+                    handler.post(() -> {
+                        activity.setResult(BLE_CONTROLLER_RESULT_ERROR_NULL_SERVICE);
+                        activity.finish();
+                    });
+                    return;
+                }
 
                 userIdCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_USER_ID));
                 wifiSsidCharacteristic = sauRegistrationService.getCharacteristic(UUID.fromString(BLEController.SAU_REGISTRATION_SERVICE_CHARACTERISTIC_UUID_WIFI_SSID));
@@ -445,7 +496,7 @@ public class BLEController {
         }
     }
 
-    private void handleDeviceFeedbackNotification(byte[] data) {
+    private void handleDeviceFeedbackNotification(byte[] data, BluetoothGatt gatt) {
         System.out.println("In handleDeviceFeedbackNotification");
 
         System.out.println("Data length: " + data.length + " byte"); // Should be 1 byte - 0x01 if WiFi network was connected successfully, 0x00 otherwise
@@ -458,13 +509,27 @@ public class BLEController {
             case 0x00:
                 //Device failed to connect to the WiFi network
                 Log.d(TAG, "Remote device failed to connect to the WiFi network");
-                //ask user to try again
-                handler.post(() -> new AlertDialog.Builder(context)
-                        .setTitle("Camera device failed to connect Wi-Fi network")
-                        .setMessage("Try again? Possibly fix Wi-Fi SSID and/or password.")
-                        .show());
 
-                //TODO Should we close the GATT connection here? - probably not, unless there's a good reason for that. It can be reused when the user retries to register the camera.
+                Log.d(TAG, "Disconnecting from GATT server");
+
+                //ask user to try again
+                handler.post(() -> {
+//                    new AlertDialog.Builder(context)
+//                        .setTitle("Camera device failed to connect Wi-Fi network")
+//                        .setMessage("Try again? Possibly fix Wi-Fi SSID and/or password.")
+//                        .show();
+                    activity.setResult(BLE_CONTROLLER_RESULT_DEV_WIFI_CONN_FAIL);
+                    activity.finish();
+                });
+
+                //Should we close the GATT connection here? - probably not, unless there's a good reason for that. It can be reused when the user retries to register the camera.
+                //Although we will - it simplifies the implementation and prevents the camera device from being stuck in GATT connection state
+                try {
+                    gatt.disconnect();
+                } catch (SecurityException e) {
+                    throw new RuntimeException(e);
+                }
+
                 break;
             case 0x01:
                 //Device connected to the WiFi network
@@ -473,10 +538,14 @@ public class BLEController {
                 // GATT connection should be closed by the peripheral after the WiFi network connection is successful
 
                 //notify user that the connection was successful and registration will be soon completed with the server
-                handler.post(() -> new AlertDialog.Builder(context)
-                        .setTitle("Camera device connected to Wi-Fi network")
-                        .setMessage("Registration will be completed soon with the server. You can close the app and after you reopen it, the added camera should be visible.") // TODO save the user from needing to close and reopen the app
-                        .show());
+                handler.post(() -> {
+//                    new AlertDialog.Builder(context)
+//                            .setTitle("Camera device connected to Wi-Fi network")
+//                            .setMessage("Registration will be completed soon with the server. You can close the app and after you reopen it, the added camera should be visible.") // TODO save the user from needing to close and reopen the app
+//                            .show();
+                    activity.setResult(BLE_CONTROLLER_RESULT_DEV_WIFI_CONN_SUCCESS);
+                    activity.finish();
+                });
                 break;
             default:
                 throw new RuntimeException("Invalid GATT notification detected - feedback data contains an unsupported byte value other than 0x00 or 0x01: " + data[0]);

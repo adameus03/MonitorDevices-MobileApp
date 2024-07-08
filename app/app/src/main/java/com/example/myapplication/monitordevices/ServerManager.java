@@ -86,7 +86,7 @@ public class ServerManager {
                         serverCallback.onServerResponse(error);
                     }
                 });
-        ;        loginManager.loginUser();
+        loginManager.loginUser();
     }
 
     public void tokenLogin(String email, String token, ServerCallback serverCallback){
